@@ -41,6 +41,7 @@ head(data[, 1:10])
 dim(data)
 data <- as.data.frame(as.matrix(data))
 
+
 fwrite(x = data, row.names = TRUE, file = "scPMBC.csv")
 fwrite(x = labels, row.names = TRUE, file = "pbmc_labels_str.csv")
 fwrite(x = labels2, row.names = TRUE, file = "pbmc_labels_int.csv")
