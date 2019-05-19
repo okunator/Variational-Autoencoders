@@ -335,7 +335,8 @@ The clusters obtained by a beta-VSC.
 
 Since sampling from a distribution is typically a slow operation on computers, theres is usually a large difference in training times between VAE based models and vanilla autoencoders. With the parameter settings described above, the training times for vanilla autoencoder were consistantly between 3-5 minutes whereas for the VAE based models the training took 17-25 minutes. The $\beta$-VSC was usually the slowest to train with training times typically over 20 minutes.
 
-
+\newpage
+### 4. Conclusions
 
 
 \newpage
