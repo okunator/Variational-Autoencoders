@@ -229,12 +229,11 @@ png2_path <- "../images/autoencoder_tsne_3dd.png"
 png1_dest <- "../images/autoencoder_tsne_2dd.png"
 png2_dest <- "../images/autoencoder_tsne_3dd.png"
 
-
 #download(png1_path, destfile = png1_dest)
 #download(png2_path, destfile = png2_dest)
-
 comb2pngs(c(png1_dest, png2_dest))
 ```
+
 \newpage
 
 **$\beta$-VAE**
@@ -295,7 +294,9 @@ png2_dest <- "../images/betaVSC_tsne_3d.png"
 comb2pngs(c(png1_dest, png2_dest))
 ```
 
-### 3.1 K-means clustering
+\newpage
+
+### 3.2 K-means clustering
 
 To assess the success of our visualization based on low-dimensional representation, we applied the k-means clustering to the two-dimensional representations of latent space. As mentioned in the code, the number of clusters, k, was set to number of known cell types. First we discuss the results visually observing the plots and later on we assess the performances quantitatively with the help of four different measures: normalized mutual information (NMI), adjusted rand index (ARI), homogeneity and completeness. 
 
@@ -303,7 +304,7 @@ K-means clustering is a type of unsupervised learning. The algorithm seeks to de
 
 The clusters that the k-means clustering deteced were plotted next to the representation of our models. We also added the centroids just to show the areas that k-means clustering believes to represent a certain cell type.
 
-### 3.2 Performance assessment
+### 3.3 Performance assessment
 
 One way to assess the performance of clustering is to look at the plot and see visually if the different cell types are clearly separated in their own groups. For instance looking at the figure below, one can easily spot the red cluster, which represents certain cell type. Based on only the visual assessment, the deep autoencoder and beta-VAE performs the best. 
 
@@ -329,7 +330,7 @@ The clusters obtained by a beta-VSC.
 \end{center}
 
 
-### 3.3 Training times
+### 3.4 Training times
 **NOTE about training times: Model training done on hp elite book, intel core i7 8th gen**  
 
 Since sampling from a distribution is typically a slow operation on computers, theres is usually a large difference in training times between VAE based models and vanilla autoencoders. With the parameter settings described above, the training times for vanilla autoencoder were consistantly between 3-5 minutes whereas for the VAE based models the training took 17-25 minutes. The $\beta$-VSC was usually the slowest to train with training times typically over 20 minutes.
