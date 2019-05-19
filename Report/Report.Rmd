@@ -203,6 +203,31 @@ Suppose that the input gene expression vector for one cell is denoted as $\mathb
 
 In this section we present the results of our neural network models. All of the models were trained for 200 epochs. The code for the experiments can be found at [https://github.com/okunator/Variational-Autoencoders](https://github.com/okunator/Variational-Autoencoders) in a notebook-file 'run_experiments.ipynb'. For the models with $\beta$-constraint, a value of 2.0 was used for the performance validations. For optimization we used Adam optimizer for each of the models with a learning rate of 0.001. Number of latent variables was chosen to be 6. After the training of the models ended we plotted 2D and 3D t-SNE-codes (computed with t-SNE-perplexity of 40) of the six latent spaces to illustrate the performance of the different models. The performance was also validated with validation metrics called...........
 
+### 3.1 K-means clustering
+
+To assess the success of our visualization based on low-dimensional representation, we applied the k-means clustering to the two-dimensional representations of latent space. As mentioned in the code, the number of clusters, k, was set to number of known cell types. First we discuss the results visually observing the plots and later on we assess the performances quantitatively with the help of four different measures: normalized mutual information (NMI), adjusted rand index (ARI), homogeneity and completeness. 
+
+K-means clustering is a type of unsupervised learning. The algorithm seeks to detect groups in the data, with the number of groups represented by the variable k. The algorithm works iteratively to assign each data point to one of k groups based on the features. In our case the latent space were reduced to 2D representation.[11]
+
+The clusters that the k-means clustering deteced were plotted next to the representation of our models. We also added the centroids just to show the areas that k-means clustering believes to represent a certain cell type.
+
+### 3.2 Performance assessment
+
+One way to assess the performance of clustering is to look at the plot and see visually if the different cell types are clearly separated in their own groups. For instance looking at the figure below, one can easily spot the red cluster, which represents certain cell type. Based on only the visual assessment, the deep autoencoder and beta-VAE performs the best. 
+
+In deep autoencoder, there exists clearly three separated large clusters. In the red cluster, the homogeneity is extremely high, almost 1. Large homogeneity score requires that a cluster contains only samples belonging to a single class - and this is the case in our example. As the red cluster is quite uniform and far away from the other large clusters, it is not impossible that the two single points (blue and gray) were mislabeled in sequencing phase or data. If we study the deep autoencoder plot further, you can detect from the lowest large cluster up to four subclusters. Visually, it seems that these are connected only via very narrow "bridge". The top large cluster contains evidently a small separated "pink cluster island" that contains mainly one kind of cells.
+
+![](../images/dae.png)
+\begin{center}
+The clusters obtained by a deep autoencoder. On the left the colors are based on the true labels which are different cell types. On the right we show that partition an independent k-means clustering gave in order to assess the success of our dimension reduction.
+\end{center}
+
+First one could think the output obtained by $\beta$-VAE is widely scattered and incoherent, but if you look more carefully, you can notice the underlying pattern. The different celltypes are placed in a way that a hyperplane could be drawn between them. Even though the points are quite coherently placed, the serious downside is the high variance within the clusters. The VAE we built was not capable to "squeeze" the points around the centroids of the clusters - as you can see below.
+
+![](../images/bvae.png)
+\begin{center}
+The clusters obtained by a beta-VAE. The k-means clustering algorithm did partly detect 7/9 cell clusters. 
+\end{center}
 ### 3.1 Training times
 **NOTE about training times: Model training done on hp elite book, intel core i7 8th gen**  
 
@@ -283,3 +308,4 @@ comb2pngs(c(png1_dest, png2_dest))
 8. [https://stats.stackexchange.com/questions/199605/how-does-the-reparameterization-trick-for-vaes-work-and-why-is-it-important](https://stats.stackexchange.com/questions/199605/how-does-the-reparameterization-trick-for-vaes-work-and-why-is-it-important)
 9. Irina Higgins, Loic Matthey, Arka Pal, Christopher Burgess, Xavier Glorot, Matthew Botvinick, Shakir Mohamed, Alexander Lerchner. "beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework", ICLR 2017 conference submission, 2017 
 10. ancesco Tonolini, Bjorn Sand Jensen, Roderick Murray-Smith. "Variational Sparse Coding", ICLR 2019 Conference Blind Submission, 2019
+11. https://www.datascience.com/blog/k-means-clustering
