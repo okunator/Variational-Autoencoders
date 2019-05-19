@@ -311,14 +311,14 @@ In deep autoencoder, there exists clearly three separated large clusters. In the
 
 ![](../images/dae.png)
 \begin{center}
-FIG1: The clusters obtained by a deep autoencoder. On the left the colors are based on the true labels which are different cell types. On the right we show that partition an independent k-means clustering gave in order to assess the success of our dimension reduction.
+The clusters obtained by a deep autoencoder. On the left the colors are based on the true labels which are different cell types. On the right we show that partition an independent k-means clustering gave in order to assess the success of our dimension reduction.
 \end{center}
 
 First one could think the output obtained by $\beta$-VAE is widely scattered and incoherent, but if you look more carefully, you can notice the underlying pattern. The different celltypes are placed in a way that a hyperplane could be drawn between them. Even though the points are quite coherently placed, the serious downside is the high variance within the clusters. The VAE we built was not capable to "squeeze" the points around the centroids of the clusters - as you can see below.
 
 ![](../images/bvae.png)
 \begin{center}
-FIG2: The clusters obtained by a beta-VAE. The k-means clustering algorithm did partly detect 7/9 cell clusters. 
+The clusters obtained by a beta-VAE. The k-means clustering algorithm did partly detect 7/9 cell clusters. 
 \end{center}
 
 
@@ -326,7 +326,7 @@ In the $\beta$-VSC, the k-means clustering again detects partly 7/9 cell types. 
 
 ![](../images/bvsc.png)
 \begin{center}
-FIG3: The clusters obtained by a beta-VSC.
+The clusters obtained by a beta-VSC.
 \end{center}
 
 Let us look at the quantitative scores that we computed for comparing the model performances.
@@ -338,9 +338,9 @@ Normalized mutual information measures were also relatively high in each models,
 We will discuss more the reasons behind our results in the conclusion section.
 
 
-![](../images/perf.png){width=250px}
+![](../images/perf.png){}
 \begin{center}
-FIG4: Heatmap of performance scores of each models. We computed four different measures.
+Heatmap of performance scores of each models. We computed four different measures.
 \end{center}
 
 ### 3.4 Training times
@@ -348,15 +348,13 @@ FIG4: Heatmap of performance scores of each models. We computed four different m
 
 Since sampling from a distribution is typically a slow operation on computers, theres is usually a large difference in training times between VAE based models and vanilla autoencoders. With the parameter settings described above, the training times for vanilla autoencoder were consistantly between 3-5 minutes whereas for the VAE based models the training took 17-25 minutes. The $\beta$-VSC was usually the slowest to train with training times typically over 20 minutes.
 
-
-\newpage
 ## 4. Conclusions
 
 Our study showed that the traditional deep autoencoder works very well and despite of its simplicity, it can elegantly capture the most important and informative components and help us to reduce the dimensions for visualization. We started with over 13 000 genes as features and managed to build a bottle neck of only six components. With the help of the reduced latent space and a 2D representation of it by t-SNE, we visualized the distinctive clusters and found almost all the cell groups. Even though the clear winner was the deep autoencoder, when we evaluated the clustering quantitatively, all our models achieved high scores in homogeneity and mutual information.
 
 Variational autoencoders are definitely more complex but for our purposes they did not perform better than the deep autoencoder. There can be many reasons for that. One possible explanation is that the gaussian distribution is way too simple for being the distribution after the encoder. As variational autoencoders learn the parameters of a probability distribution representing the data, one cannot always assume that the underlying distribution would be a gaussian. For the future work, one could definitely try to apply planar flows and other similar "change of variables" -methods in probability distributions [12]
 
-Another reason (which is actually related to the first one) might be the sparsity of our data. Because of the sequencing procedure that takes place in order to collect the data from single cell RNA, there is many zeros in the input vectors. This challenge (standard VAE applied to sparse and high-dimensional data leading to underfitting) is well-known and researchers have just started to tackle it [13][14]. 
+Another reason (which is actually related to the first one) might be the sparsity of our data. Because of the sequencing procedure that takes place in order to collect the data from single cell RNA, there are many zeros in the input vectors. This challenge (standard VAE applied to sparse and high-dimensional data leading to underfitting) is well-known and researchers have just started to tackle it [13][14]. 
 
 To wrap this up, we list three takeaways:
 
@@ -378,7 +376,7 @@ To wrap this up, we list three takeaways:
 8. [https://stats.stackexchange.com/questions/199605/how-does-the-reparameterization-trick-for-vaes-work-and-why-is-it-important](https://stats.stackexchange.com/questions/199605/how-does-the-reparameterization-trick-for-vaes-work-and-why-is-it-important)
 9. Irina Higgins, Loic Matthey, Arka Pal, Christopher Burgess, Xavier Glorot, Matthew Botvinick, Shakir Mohamed, Alexander Lerchner. "beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework", ICLR 2017 conference submission, 2017 
 10. ancesco Tonolini, Bjorn Sand Jensen, Roderick Murray-Smith. "Variational Sparse Coding", ICLR 2019 Conference Blind Submission, 2019
-11. https://www.datascience.com/blog/k-means-clustering
-12. http://akosiorek.github.io/ml/2018/04/03/norm_flows.html 
-13. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3854665/
-14. https://arxiv.org/pdf/1710.06085.pdf
+11. Andrea Trevino: "Introduction to K-means Clustering", December 6, 2016, https://www.datascience.com/blog/k-means-clustering
+12. Adam Kosiorek: "Normalizing flows", http://akosiorek.github.io/ml/2018/04/03/norm_flows.html 
+13. Li Y, Ngom A: "Sparse representation approaches for the classification of high-dimensional biological data."" BMC Syst Biol. ;7 Suppl 4(Suppl 4):S6. doi:10.1186/1752-0509-7-S4-S6
+14. G. Krishnan, Rahul & Liang, Dawen & Hoffman, Matthew. (2017): "On the challenges of learning with inference networks on sparse, high-dimensional data. ""
