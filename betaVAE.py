@@ -61,7 +61,7 @@ def ELBO_loss(x_hat, x, mu, log_variance, beta):
 
 # HELPER FUNCTION TO TRAIN DIFFERENT beta-VAE models
 def train_betaVAE(beta, betaVae, train_loader, device, optimizer):
-    print_every=15
+    print_every=75
     print('Beta value: ', beta)
     for epoch in range(200):
         running_loss = 0.0

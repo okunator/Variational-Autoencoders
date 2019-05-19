@@ -72,7 +72,7 @@ def ELBO_loss(x_hat, x, mu, log_variance, beta, log_spike):
 
 #TRAIN FUNCTION
 def train_VSC(beta, VSC, train_loader, device, optimizer):
-    print_every=15
+    print_every=75
     for epoch in range(200):
         running_loss = 0.0
         for i, (inputs, labels) in enumerate(train_loader, 0):
