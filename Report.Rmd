@@ -1,15 +1,16 @@
 ---
-title: "Untitled"
-author: "Oskari Lehtonen"
-date: "19 May 2019"
-output: pdf_document
+title: "Variational autoencoders for single-cell transcriptomics data "
+output: 
+  pdf_document:
+         latex_engine: xelatex
+mainfont: LiberationSerif
+sansfont: LiberationSans
+monofont: LiberationMono
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-## Variational Autoencoders for single-cell transcriptomics data 
 
 All the codes in this project can be found at [https://github.com/okunator/Variational-Autoencoders](https://github.com/okunator/Variational-Autoencoders)
 
@@ -38,126 +39,176 @@ Autoencoders and VAEs are unsupervised learning methods so the full data was use
 We implemented three different autoencoder models. First we implemented a simple deep autoencoder without any varitaional inference capabilities. The simple autoencoder model is good for comparing the more sophisticated variational autoencoders. Secondly we implemented a conventional variational autoencoder introduced by Kingma & Welling (2013) with a $\beta$-constraint on the KL-divergence part of the loss function, originally introduced by Higgins et al., (2017). Finally, we implemented an extension to the $\beta$-VAE called $\beta$-VSC (beta-variational sparse coder) introduced by Tonolini, Sand Jensen & Murray-Smith (2019). VSC is able to model the sparsity of the data in the prior distribution of the encoder with a Spike and Slab distribution. However, the $\beta$-constraint has not been yet used together with the VSC to our knowledge. Next we present more detailed descriptions of the methods.
 
 ### 2.1. Autoencoders
-#### 2.1.1 Vanilla autoencoders
+
 Autoencoders are a class of neural network architectures designed for unsupervised representation learning Unsupervised learning attempts to find relevant features of a given data set. The structure of autoencoders can be divided to two parts, the encoder and decoder. The encoder performs encoding (compression) of the input and decoding attempts to reconstruct the original input from the encoded latent space.
 
-#### 2.1.2 The objective loss function
+#### 2.1.1 The objective loss function
 The succesful decoding of the latent space is also the learning objective of the whole network. Commonly the network is trained by minimizing the MSE loss function between the input data and reconstructed data. In the context of autoencoders the loss function is known as the reconstruction error.  
 
+\begin{align*} 
+\mathcal{L}_{AE} = \frac{1}{N} \sum_{i=1}^{N}||\mathbf{x}^{(i)} - \hat{\mathbf{x}}^{(i)}||^{2}
+\end{align*}
 
-<p style="text-align: center;">$\mathcal{L}_{AE} = \frac{1}{N} \sum_{i=1}^{N}||\mathbf{x}^{(i)} - \hat{\mathbf{x}}^{(i)}||^{2}$</p>
 
 where $\mathbf{x}^{(i)}$ is the $i$th original input and $\hat{\mathbf{x}}^{(i)}$ is the reconstruction of the latent space obtained from the decoder.
 
-#### 2.1.3 Bottleneck layer
+#### 2.1.2 Bottleneck layer
 If the autoencoder network has too much capacity for modelling the input data, it can simply learn the full identity mapping. This is not useful for learning meaningful latent representations of the underlying data. This is why autoencoders force the input data to flow through a 'bottleneck' layer with less capacity than original input, forcing the network to learn a representation of the data that is lower dimensional than the original. The bottleneck layer output $\mathbf{z}$ is the encoded latent representation of the data. Autoencoders with non-linear activation functions can be thought as a a more powerful generalization of PCA (Principal component analysis) which is constrained to only have linear activation functions. This means that PCA attempts to discover lower dimensional hyperplane which describes the data whereas autoencoder learn non-linear manifolds (continous non-intersecting surface). 
 
-![Illustration of an autoencoder network.[6]](Autoencoder-768x590.png)
-<p style="text-align: center;">A schematic of an autoencoder network. Figure retrieved from [6]</p>
+![](images/Autoencoder-768x590.png)
+\begin{center}
+A schematic of an autoencoder network. Figure retrieved from [6] 
+\end{center}
 
+\newpage
 ### 2.2 $\beta$-VAE
-#### 2.2.1 Vanilla VAEs
+
 The most fundamental problem with autoencoders, is that the latent space they produce is not continous or does not allow easy interpolation (the latent features may not represent any meaningful attributes of the data).
 VAEs on the other hand create, by design, a continous latent space that allows for easy random sampling that is important for generative models. The latent space in VAEs is not a discrete vector but a continous probability distribution, thus, they extend vanilla autoencoders into probabilistic generative models. more specifically VAE encoders and decoders are trained to parametrize probability distributions to be as close to the data as possible. This is achieved by making the encoder outputting two vectors of the dimension of $n$ that is the dimension of the latent space. The first vector is a vector of means $\mathbf{\mu}$ and the second is the vector of standard deviations $\mathbf{\sigma}$. Together they form the parameters of a Gaussian distribution that is used to sample random variables of size $n$ which are then passed onward to the decoder.
 
-![Illustration of VAE network.[7]](VAE1.png)
-<p style="text-align: center;">A simplified schematic of a VAE network. Figure retrieved from [7]</p> 
+![](images/VAE1.png)
+\begin{center}
+A simplified schematic of a VAE network. Figure retrieved from [7]
+\end{center}
 
-#### 2.2.2 The objective loss function
+#### 2.2.1 The objective loss function
 The learning objective for VAEs is derived from the maximization of the marginal likelihood $p_{\theta}(\mathbf{x}^{(i)})$ of every data point $i$. The marginal likelihood of every data point can be expressed through the latent space vector $\mathbf{z}$ as an infinite mixture model parametrized by a neural network with parameters $\theta \in \Theta$:
-<p style="text-align: center;">$p_{\theta}(\mathbf{x}) = \int p_{\theta}(\mathbf{x}|\mathbf{z})p_{\theta}(\mathbf{z})d\mathbf{z}$</p> 
+\begin{align*}
+p_{\theta}(\mathbf{x}) = \int p_{\theta}(\mathbf{x}|\mathbf{z})p_{\theta}(\mathbf{z})d\mathbf{z} 
+\end{align*}
 
 Now for VAEs, the decoder part tries to learn the posterior distribution $p_{\theta}(\mathbf{x}|\mathbf{z})$ of the data. However, the relationship between $\mathbf{z}$ and $\mathbf{x}$ can be highly non-linear since the dimensionalities of the vectors can be large and of different sizes. The high dimensionalities of the vectors quickly makes both the marginal and posterior probability intractable since the evaluation of the integral becomes intractable with time complexity of $\mathcal{O}(K^n)$ where $K$ is the number of mixture model components and $n$ is the number of  $\mathbf{x}^{(i)}$ observations. Now if we cannot evaluate the integral expression, there is no way we can maximize the likelihood because then we would need to evaluate the integral. This is where variational inference comes in. 
 
 In variational inference we seek to optimize an alternative objective that is tractable. It turns out that by trying to approximate the posterior with a learned proposal distribution i.e. the probabilistic encoder $q_{\phi}(\mathbf{z}|\mathbf{x})$, we can efficiently approximate the marginal probability $p_{\theta}(\mathbf{x}^{(i)})$ that can be used as an alternative objective. We can derive the alternative objective (approximation of the posterior) with KL-divergence that can be thought as a non-metric distance between two probability distributions. 
 
-![](KL1.png)
+\begin{align*}
+D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x})||p_{\theta}(\mathbf{z}|\mathbf{x})) &= \mathbb{E}_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log \frac{q_{\phi}(\mathbf{z}|\mathbf{x})}{p_{\theta}(\mathbf{z}|\mathbf{x})}]\\
+&= \mathbb{E}_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log q_{\phi}(\mathbf{z}|\mathbf{x}) - \log p_{\theta}(\mathbf{z}|\mathbf{x})]\\
+&= \mathbb{E}_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log q_{\phi}(\mathbf{z}|\mathbf{x}) - \log p_{\theta}(\mathbf{z}, \mathbf{x})] + \log p_{\theta}(\mathbf{x})
+\end{align*}
 
 and by rearranging, it follows from the non-negativity property of KL-divergence that
 
-![](KL2.png)
+\begin{align*}
+\log p_{\theta}(\mathbf{x}) &= D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x})||p_{\theta}(\mathbf{z}|\mathbf{x})) - \mathbb{E}_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log q_{\phi}(\mathbf{z}|\mathbf{x})] + \mathbb{E}_{q_{\phi}(\mathbf{z},\mathbf{x})}[\log p_{\theta}(\mathbf{x},\mathbf{z})]\\ 
+&= D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x})||p_{\theta}(\mathbf{z}|\mathbf{x})) + \mathbb{E}_{q_{\phi}(\mathbf{x}|\mathbf{z})}[\log p_{\theta}(\mathbf{x}|\mathbf{z})] - D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x})||p_{\theta}(\mathbf{z}|\mathbf{x}))\\
+&\geq \mathbb{E}_{q_{\phi}(\mathbf{x}|\mathbf{z})}[\log \log p_{\theta}(\mathbf{x}|\mathbf{z})] - D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x})||p_{\theta}(\mathbf{z}|\mathbf{x}))
+\end{align*}
 
-This bound is known as ELBO (evidence lower bound) and it is used to for the network optimization. The first term is the reconstruction error and the KL-divergence term works as a regularization term. By maximizing ELBO the optimization indirectly minimizes KL-divergence from $p(\mathbf{z}|\mathbf{x})$ to $q(\mathbf{z})$. 
+This bound is known as ELBO (evidence lower bound) and it is used to for the network optimization. The first term is the reconstruction error and the KL-divergence term works as a regularization term. By maximizing ELBO the optimization indirectly minimizes KL-divergence from $p_{\theta}(\mathbf{z}|\mathbf{x})$ to $q_{\phi}(\mathbf{z}|\mathbf{x})$. 
 
-#### 2.2.3 Reparametrization trick
-There is one more obstacle for VAEs to learn representations of the data. To optimize the parameters of the distributions the backpropagation algorithm needs to propagate through random variables (latent samples $z \sim q(\mathbf{z}|\mathbf{x})$) meaning it requires a way to compute the gradient of the expectations of random variables. Gradient can be computed only for deterministic variables so a reparametrization trick needs to be done to to enable the backpropagation propagate through the random nodes. Now introducing a new parameter $\epsilon$ as auxilliary random noise as input to the network allows us to reparametrize $z$ in a way that it is no more the source of randomness.
+#### 2.2.2 Reparametrization trick
+There is one more obstacle for VAEs to learn representations of the data. To optimize the parameters of the distributions the backpropagation algorithm needs to propagate through random variables (latent samples $z \sim q_{\phi}(\mathbf{z}|\mathbf{x})$) meaning it requires a way to compute the gradient of the expectations of random variables. Gradient can be computed only for deterministic variables so a reparametrization trick needs to be done to to enable the backpropagation propagate through the random nodes. Now introducing a new parameter $\epsilon$ as auxilliary random noise as input to the network allows us to reparametrize $z$ in a way that it is no more the source of randomness.
 
-![](reparam.png)
-<p style="text-align: center;">A schematic of the reparametrization trick. Figure retrieved from [8]</p> 
+![](images/reparam.png)
+\begin{center}
+A schematic of the reparametrization trick. Figure retrieved from [8]
+\end{center}
 
-#### 2.2.4 $\beta$-constraint
+#### 2.2.3 $\beta$-constraint
 
 The $\beta$-VAE is a simple modification to the original VAE model. It simply aims to improve the learning of latent representations by scaling the KL-divergence term in the ELBO-objective with a constant $\beta > 1$ that is interpreted as a Lagrange multiplier that adjusts the regularization imposed by the latent prior. [9]
 
 ### 2.3 $\beta$-VSC
 
-#### 2.3.1 VSCs
 VSCs are a recently introduced extension to VAEs that aim to fix some of the shortcomings of standard VAEs. Standard VAEs often produce latent codes that are disperse and lack interpretability, thus making the resulting representations unsuitable for auxiliary tasks (e.g. classiﬁcation) and human interpretation. VSCs are essentially VAEs that approximate inference with neural network sparse coding architectures. With this approach, the authors of VSCs aim to discover and discern the non-linear features that constitute variability in data and represent them as few non-zero elements in sparse vectors [10]. They model sparsity in the latent space with a Spike and Slab probability density prior. The Spike and Slab PDF is a discrete mixture model which assigns point mass to null elements and therefore probabilistically models sparsity [10]. The distributions are introduced in the model in the reparametrization part. In VSCs the KL-divergence regularization term in ELBO is split to four cross entropy components in each latent dimension; two Gaussian-discrete mixture components and two Dirac Delta-discrete mixture components. We omit the derivation of the lengthy VSC-ELBO here, but for the detailed derivation, the reader can refer to refrence [10].
 
 VSCs could provide some exiting new capabilities to model especially scRNA-seq data since it is known to be very sparse by nature.
 
-![](VSC.png)
-<p style="text-align: center;">Schematic representation of the variational sparse coding model (right) compared to a standard VAE (left). Figure retrieved from [10]</p> 
+![](images/VSC.png)
+\begin{center}
+Schematic representation of the variational sparse coding model (right) compared to a standard VAE (left). Figure retrieved from [10]
+\end{center}
 
-#### 2.3.2 $\beta$-constraint
+#### 2.3.1 $\beta$-constraint
 Similarly to $\beta$-VAE, we introduce a $\beta$-constraint to the VSC-ELBO as well.
 
+\newpage
+### 2.4 Model Architectures
+
+Suppose that the input gene expression vector for one cell is denoted as $\mathbf{x} \in \mathcal{R}^{d}$, latent space as $\mathbf{z} \in \mathcal{R}^{6}$ (meaning that the number of latent features is 6) and the reconstructed output vector denoted as $\hat{\mathbf{x}} \in \mathcal{R}^d$. These vectors are put through of a network that is composed of linear layers with ReLU activation functions in the following order:
+
+#### 2.4.1 Deep autoencoder
+**Encoder**:
+\begin{align*} 
+\mathbf{h}_1 &= W_1\mathbf{x}+b_1, \hspace{3.08cm} \mathbf{h}_1 \in \mathcal{R}^{128}\\ 
+\mathbf{h}_2 &= ReLU(W_2\mathbf{h}_1+b_2), \hspace{1.7cm} \mathbf{h}_2 \in \mathcal{R}^{32}\\
+\mathbf{h}_3 &= ReLU(W_3\mathbf{h}_2+b_3), \hspace{1.7cm} \mathbf{h}_3 \in \mathcal{R}^{16}\\
+\mathbf{z} &= ReLU(W_4\mathbf{h}_3+b_4), \hspace{1.9cm} \mathbf{z} \in \mathcal{R}^{6}
+\end{align*}
+
+**Decoder**:
+\begin{align*} 
+\mathbf{h}_5 &= ReLU(W_5\mathbf{z}+b_5), \hspace{1.9cm} \mathbf{h}_5 \in \mathcal{R}^{16}\\
+\mathbf{h}_6 &= ReLU(W_6\mathbf{h}_5+b_6), \hspace{1.7cm} \mathbf{h}_6 \in \mathcal{R}^{32}\\
+\mathbf{h}_7 &= ReLU(W_7\mathbf{h}_6+b_7), \hspace{1.7cm} \mathbf{h}_7 \in \mathcal{R}^{128}\\
+\hat{\mathbf{x}} &= W_8\mathbf{h}_7+b_8, \hspace{3.1cm} \hat{\mathbf{x}} \in \mathcal{R}^{d}
+\end{align*}
+------
+#### 2.4.2 $\beta$-VAE
+**Encoder**:
+\begin{align*} 
+\mathbf{h}_1 &= W_1\mathbf{x}+b_1, \hspace{3.08cm} \mathbf{h}_1 \in \mathcal{R}^{128}\\ 
+\mathbf{h}_2 &= ReLU(W_2\mathbf{h}_1+b_2), \hspace{1.7cm} \mathbf{h}_2 \in \mathcal{R}^{32}\\
+\mathbf{h}_{31} &= ReLU(W_{31}\mathbf{h}_2+b_{31}), \hspace{1.3cm} \mathbf{h}_{31} \in \mathcal{R}^{16}\\
+\mathbf{h}_{32} &= ReLU(W_{32}\mathbf{h}_2+b_{32}), \hspace{1.3cm} \mathbf{h}_{32} \in \mathcal{R}^{16}\\
+\end{align*}
+
+**Latent Sample**:
+\begin{align*}
+\boldsymbol{\mu} &= W_{\mu}\mathbf{h}_{31}+b_{\mu}, \hspace{2.3cm} \boldsymbol{\mu} \in \mathcal{R}^{6}\\
+\log \boldsymbol{\sigma} &= W_{\sigma}\mathbf{h}_{32}+b_{\sigma}, \hspace{2.3cm} \boldsymbol{\sigma} \in \mathcal{R}^{6}\\
+\mathbf{z} &\sim \mathcal{N}(\mu,\,\sigma^{2}), \hspace{2.8cm} \mathbf{z} \in \mathcal{R}^{6}
+\end{align*}
+
+\newpage  
+
+**Decoder**:
+\begin{align*} 
+\mathbf{h}_5 &= ReLU(W_5\mathbf{z}+b_5), \hspace{1.5cm} \mathbf{h}_5 \in \mathcal{R}^{16}\\
+\mathbf{h}_6 &= ReLU(W_6\mathbf{h}_5+b_6), \hspace{1.3cm} \mathbf{h}_6 \in \mathcal{R}^{32}\\
+\mathbf{h}_7 &= ReLU(W_7\mathbf{h}_6+b_7), \hspace{1.3cm} \mathbf{h}_7 \in \mathcal{R}^{128}\\
+\hat{\mathbf{x}} &= W_8\mathbf{h}_7+b_8, \hspace{2.7cm} \hat{\mathbf{x}} \in \mathcal{R}^{d}
+\end{align*}
+------
+#### 2.4.2 $\beta$-VSC
+**Encoder**:
+\begin{align*} 
+\mathbf{h}_1 &= W_1\mathbf{x}+b_1, \hspace{3.08cm} \mathbf{h}_1 \in \mathcal{R}^{128}\\ 
+\mathbf{h}_2 &= ReLU(W_2\mathbf{h}_1+b_2), \hspace{1.7cm} \mathbf{h}_2 \in \mathcal{R}^{32}\\
+\mathbf{h}_{31} &= ReLU(W_{31}\mathbf{h}_2+b_{31}), \hspace{1.3cm} \mathbf{h}_{31} \in \mathcal{R}^{16}\\
+\mathbf{h}_{32} &= ReLU(W_{32}\mathbf{h}_2+b_{32}), \hspace{1.3cm} \mathbf{h}_{32} \in \mathcal{R}^{16}\\
+\mathbf{h}_{33} &= ReLU(W_{33}\mathbf{h}_2+b_{33}), \hspace{1.3cm} \mathbf{h}_{33} \in \mathcal{R}^{16}\\
+\end{align*}
+
+**Latent Sample**:
+\begin{align*}
+\boldsymbol{\mu} &= W_{\mu}\mathbf{h}_{31}+b_{\mu}, \hspace{2cm} \boldsymbol{\mu} \in \mathcal{R}^{6}\\
+\log \boldsymbol{\sigma} &= W_{\sigma}\mathbf{h}_{32}+b_{\sigma}, \hspace{2cm} \boldsymbol{\sigma} \in \mathcal{R}^{6}\\
+\log \boldsymbol{spike} &= W_{spike}\mathbf{h}_{33}+b_{spike}, \hspace{0.3cm} \boldsymbol{spike} \in \mathcal{R}^{6}\\
+\mathbf{z} &\sim \alpha_{spike} \mathcal{N}(\mu,\,\sigma^{2}), \hspace{1.55cm} \mathbf{z} \in \mathcal{R}^{6}
+\end{align*}
+
+**Decoder**:
+\begin{align*} 
+\mathbf{h}_5 &= ReLU(W_5\mathbf{z}+b_5), \hspace{2.3cm} \mathbf{h}_5 \in \mathcal{R}^{16}\\
+\mathbf{h}_6 &= ReLU(W_6\mathbf{h}_5+b_6), \hspace{2.1cm} \mathbf{h}_6 \in \mathcal{R}^{32}\\
+\mathbf{h}_7 &= ReLU(W_7\mathbf{h}_6+b_7), \hspace{2.1cm} \mathbf{h}_7 \in \mathcal{R}^{128}\\
+\hat{\mathbf{x}} &= W_8\mathbf{h}_7+b_8, \hspace{3.5cm} \hat{\mathbf{x}} \in \mathcal{R}^{d}
+\end{align*}
+------
+
+\newpage
 ## 3. Experiments and results
 
-In this section we present the code, results, training times and architectures of our neural network models. All of the models were trained for 200 epochs. The code for the experiments can be found at [https://github.com/okunator/Variational-Autoencoders](https://github.com/okunator/Variational-Autoencoders) in a notebook-file 'run_experiments.ipynb'. For the models with $\beta$-constraint, a value of 5.0 was used for the performance validations. Also tests with different values were tested without validations to see the effect on the tsne-plots. Adam optimizer was used for each training of the models. Learning rate was set 0.001 for the optimizer for each model.
+In this section we present the results of our neural network models. All of the models were trained for 200 epochs. The code for the experiments can be found at [https://github.com/okunator/Variational-Autoencoders](https://github.com/okunator/Variational-Autoencoders) in a notebook-file 'run_experiments.ipynb'. For the models with $\beta$-constraint, a value of 2.0 was used for the performance validations. For optimization we used Adam optimizer for each of the models with a learning rate of 0.001. Number of latent variables was chosen to be 6. After the training of the models ended we plotted 2D and 3D t-SNE-codes of the six latent spaces to illustrate the performance of the different models. The performance was also validated with validation metrics called...........
 
 **NOTE about training times: Model training done on hp elite book, intel core i7 8th gen**  
 
-### 3.1 Deep Autoencoder
 
-#### 3.1.1 Architecture
 
-The autoencoder we built has a deep architecture. Suppose that the input gene expression vector for one cell is denoted as $\mathbf{x} \in \mathcal{R}^{d}$, latent space as $\mathbf{z} \in \mathcal{R}^{6}$ (meaning that the number of latent features is 6) and the reconstructed output vector denoted as $\hat{\mathbf{x}} \in \mathcal{R}^d$. These vectors are put through of a network that is composed of linear layers with ReLU activation functions in the following order:
 
-- Encoder network
-    - $ \hspace{4cm} \mathbf{h}_1 = W_1\mathbf{x}+b_1, \hspace{3.08cm} \mathbf{h}_1 \in \mathcal{R}^{128}$  
-    - $ \hspace{4cm} \mathbf{h}_2 = ReLU(W_2\mathbf{h}_1+b_2), \hspace{1.3cm} \mathbf{h}_2 \in \mathcal{R}^{32}$
-    - $ \hspace{4cm} \mathbf{h}_3 = ReLU(W_3\mathbf{h}_2+b_3), \hspace{1.3cm} \mathbf{h}_3 \in \mathcal{R}^{16}$ 
-    - $ \hspace{4cm} \mathbf{z} = ReLU(W_4\mathbf{h}_3+b_4), \hspace{1.85cm} \mathbf{z} \in \mathcal{R}^{6}$ 
-  
-- Decoder network
-    - $ \hspace{4cm} \mathbf{h}_5 = ReLU(W_5\mathbf{h}_4+b_5), \hspace{1.3cm} \mathbf{h}_5 \in \mathcal{R}^{16}$
-    - $ \hspace{4cm} \mathbf{h}_6 = ReLU(W_6\mathbf{h}_5+b_6), \hspace{1.3cm} \mathbf{h}_6 \in \mathcal{R}^{32}$
-    - $ \hspace{4cm} \mathbf{h}_7 = ReLU(W_7\mathbf{h}_6+b_7), \hspace{1.3cm} \mathbf{h}_7 \in \mathcal{R}^{128}$
-    - $ \hspace{4cm} \hat{\mathbf{x}} = W_8\mathbf{h}_7+b_8, \hspace{3.33cm} \hat{\mathbf{x}} \in \mathcal{R}^{d}$
-
-### 3.2 Variational Autoencoder with beta entanglement
-
-#### 3.2.1 Architecture
-
-- Encoder network
-    - $ \hspace{4cm} \mathbf{h}_1 = W_1\mathbf{x}+b_1, \hspace{3.08cm} \mathbf{h}_1 \in \mathcal{R}^{128}$  
-    - $ \hspace{4cm} \mathbf{h}_2 = ReLU(W_2\mathbf{h}_1+b_2), \hspace{1.3cm} \mathbf{h}_2 \in \mathcal{R}^{32}$
-    - $ \hspace{4cm} \mathbf{h}_3 = ReLU(W_3\mathbf{h}_2+b_3), \hspace{1.3cm} \mathbf{h}_3 \in \mathcal{R}^{16}$ 
-    - $ \hspace{4cm} \mathbf{z} = ReLU(W_4\mathbf{h}_3+b_4), \hspace{1.85cm} \mathbf{z} \in \mathcal{R}^{6}$ 
-  
-- Decoder network
-    - $ \hspace{4cm} \mathbf{h}_5 = ReLU(W_5\mathbf{h}_4+b_5), \hspace{1.3cm} \mathbf{h}_5 \in \mathcal{R}^{16}$
-    - $ \hspace{4cm} \mathbf{h}_6 = ReLU(W_6\mathbf{h}_5+b_6), \hspace{1.3cm} \mathbf{h}_6 \in \mathcal{R}^{32}$
-    - $ \hspace{4cm} \mathbf{h}_7 = ReLU(W_7\mathbf{h}_6+b_7), \hspace{1.3cm} \mathbf{h}_7 \in \mathcal{R}^{128}$
-    - $ \hspace{4cm} \hat{\mathbf{x}} = W_8\mathbf{h}_7+b_8, \hspace{3.33cm} \hat{\mathbf{x}} \in \mathcal{R}^{d}$
-
-### 3.3 Variational sparse coding
- 
-#### 3.3.1 Architecture
-
-- Encoder network
-    - $ \hspace{4cm} \mathbf{h}_1 = W_1\mathbf{x}+b_1, \hspace{3.08cm} \mathbf{h}_1 \in \mathcal{R}^{128}$  
-    - $ \hspace{4cm} \mathbf{h}_2 = ReLU(W_2\mathbf{h}_1+b_2), \hspace{1.3cm} \mathbf{h}_2 \in \mathcal{R}^{32}$
-    - $ \hspace{4cm} \mathbf{h}_3 = ReLU(W_3\mathbf{h}_2+b_3), \hspace{1.3cm} \mathbf{h}_3 \in \mathcal{R}^{16}$ 
-    - $ \hspace{4cm} \mathbf{z} = ReLU(W_4\mathbf{h}_3+b_4), \hspace{1.85cm} \mathbf{z} \in \mathcal{R}^{6}$ 
-  
-- Decoder network
-    - $ \hspace{4cm} \mathbf{h}_5 = ReLU(W_5\mathbf{h}_4+b_5), \hspace{1.3cm} \mathbf{h}_5 \in \mathcal{R}^{16}$
-    - $ \hspace{4cm} \mathbf{h}_6 = ReLU(W_6\mathbf{h}_5+b_6), \hspace{1.3cm} \mathbf{h}_6 \in \mathcal{R}^{32}$
-    - $ \hspace{4cm} \mathbf{h}_7 = ReLU(W_7\mathbf{h}_6+b_7), \hspace{1.3cm} \mathbf{h}_7 \in \mathcal{R}^{128}$
-    - $ \hspace{4cm} \hat{\mathbf{x}} = W_8\mathbf{h}_7+b_8, \hspace{3.33cm} \hat{\mathbf{x}} \in \mathcal{R}^{d}$
-
+\newpage
 ## References
 1. Wang, Dongfang, Jin Gu. “VASC: Dimension Reduction and Visualization of Single-cell RNA-seq Data by Deep Variational Autoencoder.” Genomics, proteomics & bioinformatics, Volume 16, Issue 5, 2018, DOI: 10.1016/j.gpb.2018.08.003
 2. Romain Lopez, Jeffrey Regier, Michael Cole, Michael I. Jordan, Nir Yosef. "Deep generative modeling for single-cell transcriptomics." Nature Methods, 2018. DOI: 10.1038/s41592-018-0229-2 
