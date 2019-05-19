@@ -219,15 +219,25 @@ In deep autoencoder, there exists clearly three separated large clusters. In the
 
 ![](../images/dae.png)
 \begin{center}
-The clusters obtained by a deep autoencoder. On the left the colors are based on the true labels which are different cell types. On the right we show that partition an independent k-means clustering gave in order to assess the success of our dimension reduction.
+FIG1: The clusters obtained by a deep autoencoder. On the left the colors are based on the true labels which are different cell types. On the right we show that partition an independent k-means clustering gave in order to assess the success of our dimension reduction.
 \end{center}
 
 First one could think the output obtained by $\beta$-VAE is widely scattered and incoherent, but if you look more carefully, you can notice the underlying pattern. The different celltypes are placed in a way that a hyperplane could be drawn between them. Even though the points are quite coherently placed, the serious downside is the high variance within the clusters. The VAE we built was not capable to "squeeze" the points around the centroids of the clusters - as you can see below.
 
 ![](../images/bvae.png)
 \begin{center}
-The clusters obtained by a beta-VAE. The k-means clustering algorithm did partly detect 7/9 cell clusters. 
+FIG2: The clusters obtained by a beta-VAE. The k-means clustering algorithm did partly detect 7/9 cell clusters. 
 \end{center}
+
+
+In the $\beta$-VSC, the k-means clustering again detects partly 7/9 cell types. This is not a surprising result as the gray and yellow cells are not as separated as in the previous models. For instance, our first model, the deep autoencoder, placed these cells clearly in distinctive clusters. In addition to this, it is worth to bear in mind that the number of these cells is way less than the other types of cells, which might make the partition harder. 
+
+![](../images/bvsc.png)
+\begin{center}
+FIG3: The clusters obtained by a beta-VSC.
+\end{center}
+
+
 ### 3.1 Training times
 **NOTE about training times: Model training done on hp elite book, intel core i7 8th gen**  
 
