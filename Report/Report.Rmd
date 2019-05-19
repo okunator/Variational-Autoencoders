@@ -55,7 +55,7 @@ where $\mathbf{x}^{(i)}$ is the $i$th original input and $\hat{\mathbf{x}}^{(i)}
 #### 2.1.2 Bottleneck layer
 If the autoencoder network has too much capacity for modelling the input data, it can simply learn the full identity mapping. This is not useful for learning meaningful latent representations of the underlying data. This is why autoencoders force the input data to flow through a 'bottleneck' layer with less capacity than original input, forcing the network to learn a representation of the data that is lower dimensional than the original. The bottleneck layer output $\mathbf{z}$ is the encoded latent representation of the data. Autoencoders with non-linear activation functions can be thought as a a more powerful generalization of PCA (Principal component analysis) which is constrained to only have linear activation functions. This means that PCA attempts to discover lower dimensional hyperplane which describes the data whereas autoencoder learn non-linear manifolds (continous non-intersecting surface). 
 
-![](images/Autoencoder-768x590.png)
+![](../images/Autoencoder-768x590.png)
 \begin{center}
 A schematic of an autoencoder network. Figure retrieved from [6] 
 \end{center}
@@ -66,7 +66,7 @@ A schematic of an autoencoder network. Figure retrieved from [6]
 The most fundamental problem with autoencoders, is that the latent space they produce is not continous or does not allow easy interpolation (the latent features may not represent any meaningful attributes of the data).
 VAEs on the other hand create, by design, a continous latent space that allows for easy random sampling that is important for generative models. The latent space in VAEs is not a discrete vector but a continous probability distribution, thus, they extend vanilla autoencoders into probabilistic generative models. more specifically VAE encoders and decoders are trained to parametrize probability distributions to be as close to the data as possible. This is achieved by making the encoder outputting two vectors of the dimension of $n$ that is the dimension of the latent space. The first vector is a vector of means $\mathbf{\mu}$ and the second is the vector of standard deviations $\mathbf{\sigma}$. Together they form the parameters of a Gaussian distribution that is used to sample random variables of size $n$ which are then passed onward to the decoder.
 
-![](images/VAE1.png)
+![](../images/VAE1.png)
 \begin{center}
 A simplified schematic of a VAE network. Figure retrieved from [7]
 \end{center}
@@ -100,7 +100,7 @@ This bound is known as ELBO (evidence lower bound) and it is used to for the net
 #### 2.2.2 Reparametrization trick
 There is one more obstacle for VAEs to learn representations of the data. To optimize the parameters of the distributions the backpropagation algorithm needs to propagate through random variables (latent samples $z \sim q_{\phi}(\mathbf{z}|\mathbf{x})$) meaning it requires a way to compute the gradient of the expectations of random variables. Gradient can be computed only for deterministic variables so a reparametrization trick needs to be done to to enable the backpropagation propagate through the random nodes. Now introducing a new parameter $\epsilon$ as auxilliary random noise as input to the network allows us to reparametrize $z$ in a way that it is no more the source of randomness.
 
-![](images/reparam.png)
+![](../images/reparam.png)
 \begin{center}
 A schematic of the reparametrization trick. Figure retrieved from [8]
 \end{center}
@@ -115,7 +115,7 @@ VSCs are a recently introduced extension to VAEs that aim to fix some of the sho
 
 VSCs could provide some exiting new capabilities to model especially scRNA-seq data since it is known to be very sparse by nature.
 
-![](images/VSC.png)
+![](../images/VSC.png)
 \begin{center}
 Schematic representation of the variational sparse coding model (right) compared to a standard VAE (left). Figure retrieved from [10]
 \end{center}
