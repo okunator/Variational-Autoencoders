@@ -201,41 +201,13 @@ Suppose that the input gene expression vector for one cell is denoted as $\mathb
 \newpage
 ## 3. Experiments and results
 
-In this section we present the results of our neural network models. All of the models were trained for 200 epochs. The code for the experiments can be found at [https://github.com/okunator/Variational-Autoencoders](https://github.com/okunator/Variational-Autoencoders) in a notebook-file 'run_experiments.ipynb'. For the models with $\beta$-constraint, a value of 2.0 was used for the performance validations. For optimization we used Adam optimizer for each of the models with a learning rate of 0.001. Number of latent variables was chosen to be 6. After the training of the models ended we plotted 2D and 3D t-SNE-codes (computed with t-SNE-perplexity of 40) of the six latent spaces to illustrate the performance of the different models. The performance was also validated with validation metrics called...........
+In this section we present the results of our neural network models. All of the models were trained for 200 epochs. The code for the experiments can be found at [https://github.com/okunator/Variational-Autoencoders](https://github.com/okunator/Variational-Autoencoders) in a notebook-file 'run_experiments.ipynb'. For the models with $\beta$-constraint, a value of 2.0 was used for the performance validations. For optimization we used Adam optimizer for each of the models with a learning rate of 0.001. Number of latent variables was chosen to be 6. After the training of the models ended we plotted 2D and 3D t-SNE-codes (computed with t-SNE-perplexity of 40) of the six latent spaces to illustrate the performance and difference between the models. The performance of the latent space representations was also was also validated in the same manner as in the reference [1]. These Validation metrics are called Normalized mutual information (NMI), Adjusted rand index (ARI), Homogeneity (HOM) and Completeness (COM).
 
-### 3.1 K-means clustering
+### 3.1 t-SNE plots
 
-To assess the success of our visualization based on low-dimensional representation, we applied the k-means clustering to the two-dimensional representations of latent space. As mentioned in the code, the number of clusters, k, was set to number of known cell types. First we discuss the results visually observing the plots and later on we assess the performances quantitatively with the help of four different measures: normalized mutual information (NMI), adjusted rand index (ARI), homogeneity and completeness. 
+Following t-SNE plots are colored by the clustering results described in chapter 1. The resulting integer labels are renamed after the cell types they resemble. These cell types were assigned to each cluster according to the 'Seurat' pipeline found at [https://satijalab.org/seurat/v3.0/pbmc3k_tutorial.html](https://satijalab.org/seurat/v3.0/pbmc3k_tutorial.html). 
 
-K-means clustering is a type of unsupervised learning. The algorithm seeks to detect groups in the data, with the number of groups represented by the variable k. The algorithm works iteratively to assign each data point to one of k groups based on the features. In our case the latent space were reduced to 2D representation.[11]
-
-The clusters that the k-means clustering deteced were plotted next to the representation of our models. We also added the centroids just to show the areas that k-means clustering believes to represent a certain cell type.
-
-### 3.2 Performance assessment
-
-One way to assess the performance of clustering is to look at the plot and see visually if the different cell types are clearly separated in their own groups. For instance looking at the figure below, one can easily spot the red cluster, which represents certain cell type. Based on only the visual assessment, the deep autoencoder and beta-VAE performs the best. 
-
-In deep autoencoder, there exists clearly three separated large clusters. In the red cluster, the homogeneity is extremely high, almost 1. Large homogeneity score requires that a cluster contains only samples belonging to a single class - and this is the case in our example. As the red cluster is quite uniform and far away from the other large clusters, it is not impossible that the two single points (blue and gray) were mislabeled in sequencing phase or data. If we study the deep autoencoder plot further, you can detect from the lowest large cluster up to four subclusters. Visually, it seems that these are connected only via very narrow "bridge". The top large cluster contains evidently a small separated "pink cluster island" that contains mainly one kind of cells.
-
-![](../images/dae.png)
-\begin{center}
-The clusters obtained by a deep autoencoder. On the left the colors are based on the true labels which are different cell types. On the right we show that partition an independent k-means clustering gave in order to assess the success of our dimension reduction.
-\end{center}
-
-First one could think the output obtained by $\beta$-VAE is widely scattered and incoherent, but if you look more carefully, you can notice the underlying pattern. The different celltypes are placed in a way that a hyperplane could be drawn between them. Even though the points are quite coherently placed, the serious downside is the high variance within the clusters. The VAE we built was not capable to "squeeze" the points around the centroids of the clusters - as you can see below.
-
-![](../images/bvae.png)
-\begin{center}
-The clusters obtained by a beta-VAE. The k-means clustering algorithm did partly detect 7/9 cell clusters. 
-\end{center}
-### 3.1 Training times
-**NOTE about training times: Model training done on hp elite book, intel core i7 8th gen**  
-
-Since sampling from a distribution is typically a slow operation on computers, theres is usually a large difference in training times between VAE based models and vanilla autoencoders. With the parameter settings described above, the training times for vanilla autoencoder were consistantly between 3-5 minutes whereas for the VAE based models the training took 17-25 minutes. The $\beta$-VSC was usually the slowest to train with training times typically over 20 minutes.
-
-### 3.2 t-SNE plots
-
-**Deep Autoencoder**
+#### Deep Autoencoder
 
 ```{r, echo=F}
 library(gridExtra)
@@ -250,12 +222,12 @@ comb2pngs <- function(imgs, bottom_text = NULL){
   grid.arrange(img1, img2, ncol = 2, bottom = bottom_text)
 }
 
-png1_path <- "../images/autoencoder_tsne_2d.png"
-png2_path <- "../images/autoencoder_tsne_3d.png"
+png1_path <- "../images/autoencoder_tsne_2dd.png"
+png2_path <- "../images/autoencoder_tsne_3dd.png"
 
 
-png1_dest <- "../images/autoencoder_tsne_2d.png"
-png2_dest <- "../images/autoencoder_tsne_3d.png"
+png1_dest <- "../images/autoencoder_tsne_2dd.png"
+png2_dest <- "../images/autoencoder_tsne_3dd.png"
 
 
 #download(png1_path, destfile = png1_dest)
@@ -263,7 +235,6 @@ png2_dest <- "../images/autoencoder_tsne_3d.png"
 
 comb2pngs(c(png1_dest, png2_dest))
 ```
-
 \newpage
 
 **$\beta$-VAE**
@@ -294,6 +265,76 @@ png2_dest <- "../images/betaVAE_tsne_3d.png"
 
 comb2pngs(c(png1_dest, png2_dest))
 ```
+
+#### $\beta$-VSC
+
+```{r, echo=F}
+library(gridExtra)
+library(grid)
+library(png)
+library(grDevices)
+comb2pngs <- function(imgs, bottom_text = NULL){
+  img1 <-  grid::rasterGrob(as.raster(readPNG(imgs[1])),
+                            interpolate = FALSE)
+  img2 <-  grid::rasterGrob(as.raster(readPNG(imgs[2])),
+                            interpolate = FALSE)
+  grid.arrange(img1, img2, ncol = 2, bottom = bottom_text)
+}
+
+png1_path <- "../images/betaVSC_tsne_2d.png"
+png2_path <- "../images/betaVSC_tsne_3d.png"
+
+
+png1_dest <- "../images/betaVSC_tsne_2d.png"
+png2_dest <- "../images/betaVSC_tsne_3d.png"
+
+
+#download(png1_path, destfile = png1_dest)
+#download(png2_path, destfile = png2_dest)
+
+comb2pngs(c(png1_dest, png2_dest))
+```
+
+### 3.1 K-means clustering
+
+To assess the success of our visualization based on low-dimensional representation, we applied the k-means clustering to the two-dimensional representations of latent space. As mentioned in the code, the number of clusters, k, was set to number of known cell types. First we discuss the results visually observing the plots and later on we assess the performances quantitatively with the help of four different measures: normalized mutual information (NMI), adjusted rand index (ARI), homogeneity and completeness. 
+
+K-means clustering is a type of unsupervised learning. The algorithm seeks to detect groups in the data, with the number of groups represented by the variable k. The algorithm works iteratively to assign each data point to one of k groups based on the features. In our case the latent space were reduced to 2D representation.[11]
+
+The clusters that the k-means clustering deteced were plotted next to the representation of our models. We also added the centroids just to show the areas that k-means clustering believes to represent a certain cell type.
+
+### 3.2 Performance assessment
+
+One way to assess the performance of clustering is to look at the plot and see visually if the different cell types are clearly separated in their own groups. For instance looking at the figure below, one can easily spot the red cluster, which represents certain cell type. Based on only the visual assessment, the deep autoencoder and beta-VAE performs the best. 
+
+In deep autoencoder, there exists clearly three separated large clusters. In the red cluster, the homogeneity is extremely high, almost 1. Large homogeneity score requires that a cluster contains only samples belonging to a single class - and this is the case in our example. As the red cluster is quite uniform and far away from the other large clusters, it is not impossible that the two single points (blue and gray) were mislabeled in sequencing phase or data. If we study the deep autoencoder plot further, you can detect from the lowest large cluster up to four subclusters. Visually, it seems that these are connected only via very narrow "bridge". The top large cluster contains evidently a small separated "pink cluster island" that contains mainly one kind of cells.
+
+![](../images/dae.png)
+\begin{center}
+The clusters obtained by a deep autoencoder. On the left the colors are based on the true labels which are different cell types. On the right we show that partition an independent k-means clustering gave in order to assess the success of our dimension reduction.
+\end{center}
+
+First one could think the output obtained by $\beta$-VAE is widely scattered and incoherent, but if you look more carefully, you can notice the underlying pattern. The different celltypes are placed in a way that a hyperplane could be drawn between them. Even though the points are quite coherently placed, the serious downside is the high variance within the clusters. The VAE we built was not capable to "squeeze" the points around the centroids of the clusters - as you can see below.
+
+![](../images/bvae.png)
+\begin{center}
+The clusters obtained by a beta-VAE. The k-means clustering algorithm did partly detect 7/9 cell clusters. 
+\end{center}
+
+In the $\beta$-VSC, the k-means clustering again detects partly 7/9 cell types. This is not a surprising result as the gray and yellow cells are not as separated as in the previous models. For instance, our first model, the deep autoencoder, placed these cells clearly in distinctive clusters. In addition to this, it is worth to bear in mind that the number of these cells is way less than the other types of cells, which might make the partition harder. 
+
+![](../images/bvsc.png)
+\begin{center}
+The clusters obtained by a beta-VSC.
+\end{center}
+
+
+### 3.3 Training times
+**NOTE about training times: Model training done on hp elite book, intel core i7 8th gen**  
+
+Since sampling from a distribution is typically a slow operation on computers, theres is usually a large difference in training times between VAE based models and vanilla autoencoders. With the parameter settings described above, the training times for vanilla autoencoder were consistantly between 3-5 minutes whereas for the VAE based models the training took 17-25 minutes. The $\beta$-VSC was usually the slowest to train with training times typically over 20 minutes.
+
+
 
 
 \newpage
