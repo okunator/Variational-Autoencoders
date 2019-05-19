@@ -1,0 +1,6 @@
+__pycache__
+.Rhistory
+test.Rmd
+test.pdf
+data/
+.ipynb_checkpoints/
