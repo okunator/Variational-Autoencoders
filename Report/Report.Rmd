@@ -201,10 +201,12 @@ Suppose that the input gene expression vector for one cell is denoted as $\mathb
 \newpage
 ## 3. Experiments and results
 
-In this section we present the results of our neural network models. All of the models were trained for 200 epochs. The code for the experiments can be found at [https://github.com/okunator/Variational-Autoencoders](https://github.com/okunator/Variational-Autoencoders) in a notebook-file 'run_experiments.ipynb'. For the models with $\beta$-constraint, a value of 2.0 was used for the performance validations. For optimization we used Adam optimizer for each of the models with a learning rate of 0.001. Number of latent variables was chosen to be 6. After the training of the models ended we plotted 2D and 3D t-SNE-codes of the six latent spaces to illustrate the performance of the different models. The performance was also validated with validation metrics called...........
+In this section we present the results of our neural network models. All of the models were trained for 200 epochs. The code for the experiments can be found at [https://github.com/okunator/Variational-Autoencoders](https://github.com/okunator/Variational-Autoencoders) in a notebook-file 'run_experiments.ipynb'. For the models with $\beta$-constraint, a value of 2.0 was used for the performance validations. For optimization we used Adam optimizer for each of the models with a learning rate of 0.001. Number of latent variables was chosen to be 6. After the training of the models ended we plotted 2D and 3D t-SNE-codes (computed with t-SNE-perplexity of 40) of the six latent spaces to illustrate the performance of the different models. The performance was also validated with validation metrics called...........
 
+### 3.1 Training times
 **NOTE about training times: Model training done on hp elite book, intel core i7 8th gen**  
 
+Since sampling from a distribution is typically a slow operation on computers, theres is usually a large difference in training times between VAE based models and vanilla autoencoders. With the parameter settings described above, the training times for vanilla autoencoder were consistantly between 3-5 minutes whereas for the VAE based models the training took 17-25 minutes. The $\beta$-VSC was usually the slowest to train with training times typically over 20 minutes.
 
 
 
