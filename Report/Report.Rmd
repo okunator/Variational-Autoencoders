@@ -205,7 +205,7 @@ In this section we present the results of our neural network models. All of the 
 
 ### 3.1 t-SNE plots
 
-Following t-SNE plots are colored by the clustering results described in chapter 1. The resulting integer labels are renamed after the cell types they resemble. These cell types were assigned to each cluster according to the 'Seurat' pipeline found at [https://satijalab.org/seurat/v3.0/pbmc3k_tutorial.html](https://satijalab.org/seurat/v3.0/pbmc3k_tutorial.html).
+Following t-SNE plots are colored by the clustering results described in chapter 1. The resulting integer labels are renamed after the cell types they resemble. These cell types were assigned to each cluster according to the 'Seurat' pipeline found at [https://satijalab.org/seurat/v3.0/pbmc3k_tutorial.html](https://satijalab.org/seurat/v3.0/pbmc3k_tutorial.html). Note that t-SNE is a stochastic algorithm, which explains why the plots are different from each other in every run.
 
 **Deep Autoencoder**
 
@@ -301,7 +301,7 @@ To assess the success of our visualization based on low-dimensional representati
 
 K-means clustering is a type of unsupervised learning. The algorithm seeks to detect groups in the data, with the number of groups represented by the variable k. The algorithm works iteratively to assign each data point to one of k groups based on the features. In our case the latent space were reduced to 2D representation.[11]
 
-The clusters that the k-means clustering deteced were plotted next to the representation of our models. We also added the centroids just to show the areas that k-means clustering believes to represent a certain cell type.
+The clusters that the k-means clustering detected were plotted next to the representation of our models. We also added the centroids just to show the areas that k-means clustering believes to represent a certain cell type.
 
 ### 3.3 Performance assessment
 
@@ -352,9 +352,19 @@ Since sampling from a distribution is typically a slow operation on computers, t
 \newpage
 ## 4. Conclusions
 
-Our study showed that the traditional deep autoencoder works very well and despite of its simplicity, it can elegantly capture the most important and informative components and help us to reduce the dimensions for visualization. We started with over 13 000 genes as features and managed to build a bottle neck of only six components. With the help of the reduced latent space and a 2D representation of it by t-SNE, we visualized the distinctive clusters and found almost all the cell groups.
+Our study showed that the traditional deep autoencoder works very well and despite of its simplicity, it can elegantly capture the most important and informative components and help us to reduce the dimensions for visualization. We started with over 13 000 genes as features and managed to build a bottle neck of only six components. With the help of the reduced latent space and a 2D representation of it by t-SNE, we visualized the distinctive clusters and found almost all the cell groups. Even though the clear winner was the deep autoencoder, when we evaluated the clustering quantitatively, all our models achieved high scores in homogeneity and mutual information.
 
-Variational autoencoders are definitely more complex but for our purposes they did not perform better than the deep autoencoder. JATKUU
+Variational autoencoders are definitely more complex but for our purposes they did not perform better than the deep autoencoder. There can be many reasons for that. One possible explanation is that the gaussian distribution is way too simple for being the distribution after the encoder. As variational autoencoders learn the parameters of a probability distribution representing the data, one cannot always assume that the underlying distribution would be a gaussian. For the future work, one could definitely try to apply planar flows and other similar "change of variables" -methods in probability distributions [12]
+
+Another reason (which is actually related to the first one) might be the sparsity of our data. Because of the sequencing procedure that takes place in order to collect the data from single cell RNA, there is many zeros in the input vectors. This challenge (standard VAE applied to sparse and high-dimensional data leading to underfitting) is well-known and researchers have just started to tackle it [13][14]. 
+
+To wrap this up, we list three takeaways:
+
+1. Working with high-dimensional sparse data requires more sophisticated methods to be implemented inside the network. There is a continuous research around this challenge. The future methods can help us to tackle the problem of underfitting and make the training more straightforward. 
+
+2. By adding the $\beta$ in VSC model, we gained better results. We recommend to try to tune the VSC models with the additional coefficient as it can improve the performance.
+
+3. The power of deep autoencoders should not be underestimated when comparing to the variational ones. They latter are not always better. In our project, we achieved highest scores with deep autoencoder. It provided us the most efficient way to visualize the complex world of cells.
 
 \newpage
 ## References
@@ -369,3 +379,6 @@ Variational autoencoders are definitely more complex but for our purposes they d
 9. Irina Higgins, Loic Matthey, Arka Pal, Christopher Burgess, Xavier Glorot, Matthew Botvinick, Shakir Mohamed, Alexander Lerchner. "beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework", ICLR 2017 conference submission, 2017 
 10. ancesco Tonolini, Bjorn Sand Jensen, Roderick Murray-Smith. "Variational Sparse Coding", ICLR 2019 Conference Blind Submission, 2019
 11. https://www.datascience.com/blog/k-means-clustering
+12. http://akosiorek.github.io/ml/2018/04/03/norm_flows.html 
+13. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3854665/
+14. https://arxiv.org/pdf/1710.06085.pdf
